@@ -26,7 +26,7 @@ const Button3D = ({
       case 'outline':
         return 'bg-transparent border-2 border-primary text-primary dark:border-primary-light dark:text-primary-light';
       case 'glass':
-        return 'bg-white/10 backdrop-blur-md border border-white/20 text-white shadow-glow';
+        return 'bg-white/20 backdrop-blur-md border border-gray-300/50 dark:border-white/20 text-gray-800 dark:text-white shadow-glow';
       default:
         return 'bg-gradient-to-r from-primary to-primary-dark text-white';
     }
@@ -59,6 +59,17 @@ const Button3D = ({
     ${className}
   `;
 
+  // تحديد لون تأثير التحويم بناءً على نوع الزر
+  const getHoverEffectClass = () => {
+    if (variant === 'outline') {
+      return 'bg-primary/10 dark:bg-primary-light/10';
+    } else if (variant === 'glass') {
+      return 'bg-gray-800/10 dark:bg-white/10';
+    } else {
+      return 'bg-white/20';
+    }
+  };
+
   return (
     <motion.button
       type={type}
@@ -74,7 +85,7 @@ const Button3D = ({
       {/* تأثير الضوء عند التحويم */}
       {isHovered && animated && (
         <motion.span
-          className="absolute inset-0 bg-white/20"
+          className={`absolute inset-0 ${getHoverEffectClass()}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -84,7 +95,11 @@ const Button3D = ({
       {/* تأثير الموجة عند النقر */}
       {animated && (
         <motion.div
-          className="absolute top-0 left-0 right-0 h-1 bg-white/40"
+          className={`absolute top-0 left-0 right-0 h-1 ${
+            variant === 'outline' || variant === 'glass' 
+              ? 'bg-primary/30 dark:bg-primary-light/30' 
+              : 'bg-white/40'
+          }`}
           initial={{ scaleX: 0, originX: 0 }}
           whileTap={{ scaleX: 1, transition: { duration: 0.5 } }}
         />

@@ -10,12 +10,12 @@ import Button3D from '../ui/Button3D';
 const Navbar3D = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Estado de prueba, se reemplazará con estado real de autenticación
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Will be replaced with real auth state
   const { isArabic } = useLanguage();
   const { darkMode } = useTheme();
   const location = useLocation();
   
-  // Textos según el idioma
+  // Texts based on language
   const texts = {
     logo: isArabic ? 'توصيل البحرين' : 'Bahrain Delivery',
     home: isArabic ? 'الرئيسية' : 'Home',
@@ -28,9 +28,13 @@ const Navbar3D = () => {
     profile: isArabic ? 'الملف الشخصي' : 'Profile',
     orders: isArabic ? 'طلباتي' : 'My Orders',
     logout: isArabic ? 'تسجيل الخروج' : 'Logout',
+    darkMode: isArabic ? 'الوضع المظلم' : 'Dark Mode',
+    lightMode: isArabic ? 'الوضع المضيء' : 'Light Mode',
+    arabic: 'اللغة العربية',
+    english: 'English',
   };
   
-  // Efecto para controlar el cambio de estilo al hacer scroll
+  // Handle scroll style changes
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
@@ -46,7 +50,7 @@ const Navbar3D = () => {
     };
   }, []);
   
-  // Opciones de navegación
+  // Navigation options
   const navItems = [
     { name: texts.home, path: '/' },
     { name: texts.services, path: '/services' },
@@ -55,7 +59,7 @@ const Navbar3D = () => {
     { name: texts.contactUs, path: '/contact' },
   ];
   
-  // Función para verificar si una ruta está activa
+  // Check if a route is active
   const isActive = (path) => {
     if (path === '/' && location.pathname === '/') {
       return true;
@@ -63,29 +67,49 @@ const Navbar3D = () => {
     return location.pathname.startsWith(path) && path !== '/';
   };
   
-  // Animaciones
+  // Animations
   const variants = {
     open: { opacity: 1, x: 0 },
     closed: { opacity: 0, x: isArabic ? "100%" : "-100%" },
   };
   
-  // Cerrar menú móvil al cambiar de ruta
+  // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
   }, [location]);
 
+  // Calculate navbar background based on scroll state and theme
+  const getNavbarBackground = () => {
+    if (scrolled) {
+      return darkMode 
+        ? 'bg-gray-900/10 backdrop-blur-md shadow-lg border-b border-gray-800/30' 
+        : 'bg-white/70 backdrop-blur-md shadow-lg border-b border-gray-300/30';
+    } else {
+      return 'bg-transparent';
+    }
+  };
+
+  // Calculate text color based on scroll state and theme
+  const getTextColor = (isActive = false) => {
+    if (isActive) {
+      return 'text-primary dark:text-primary-light';
+    }
+    
+    if (scrolled) {
+      return 'text-gray-700 dark:text-gray-200';
+    } else {
+      return darkMode ? 'text-white' : 'text-gray-700';
+    }
+  };
+
   return (
     <motion.nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled 
-          ? 'bg-white/10 dark:bg-gray-900/10 backdrop-blur-md shadow-lg border-b border-white/10 dark:border-gray-800/30' 
-          : 'bg-transparent'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${getNavbarBackground()}`}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      {/* Water/Bubble particles animation for background effect */}
+      {/* Background particles animation */}
       {scrolled && (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(10)].map((_, i) => (
@@ -130,11 +154,7 @@ const Navbar3D = () => {
                   {isArabic ? 'ب' : 'B'}
                 </span>
               </div>
-              <span className={`font-bold text-xl ${
-                scrolled 
-                  ? 'text-gray-800 dark:text-white' 
-                  : 'text-primary dark:text-white'
-              }`}>
+              <span className={`font-bold text-xl ${getTextColor()}`}>
                 {texts.logo}
               </span>
             </motion.div>
@@ -154,16 +174,14 @@ const Navbar3D = () => {
                   <span className={`absolute inset-0 rounded-lg ${
                     isActive(item.path)
                       ? 'bg-primary/10 dark:bg-primary-dark/20' 
-                      : 'bg-transparent group-hover:bg-gray-200/30 dark:group-hover:bg-gray-700/30'
+                      : 'bg-transparent group-hover:bg-gray-200/50 dark:group-hover:bg-gray-700/30'
                   } transition-all duration-300`}></span>
                   
                   {/* Text */}
                   <span className={`relative z-10 font-medium ${
                     isActive(item.path)
-                      ? 'text-primary dark:text-primary-light' 
-                      : scrolled 
-                        ? 'text-gray-700 dark:text-gray-200 group-hover:text-primary dark:group-hover:text-primary-light' 
-                        : 'text-gray-700 dark:text-white group-hover:text-primary dark:group-hover:text-primary-light'
+                      ? getTextColor(true)
+                      : `${getTextColor()} group-hover:text-primary dark:group-hover:text-primary-light`
                   } transition-colors duration-300`}>
                     {item.name}
                   </span>
@@ -191,16 +209,12 @@ const Navbar3D = () => {
               <div className="relative group">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="px-3 py-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 cursor-pointer flex items-center space-x-1 rtl:space-x-reverse"
+                  className="px-3 py-2 rounded-lg bg-white/20 dark:bg-white/10 backdrop-blur-sm border border-gray-300/50 dark:border-white/10 cursor-pointer flex items-center space-x-1 rtl:space-x-reverse"
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 overflow-hidden">
                     <img src="/images/avatar-placeholder.jpg" alt="User" className="w-full h-full object-cover" />
                   </div>
-                  <span className={`${
-                    scrolled 
-                      ? 'text-gray-800 dark:text-white' 
-                      : 'text-gray-800 dark:text-white'
-                  }`}>
+                  <span className={getTextColor()}>
                     {texts.profile}
                   </span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,8 +223,8 @@ const Navbar3D = () => {
                 </motion.div>
                 
                 {/* Dropdown Menu */}
-                <div className="absolute right-0 mt-2 w-48 origin-top-right invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300">
-                  <div className="rounded-lg shadow-lg py-1 backdrop-blur-md bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50">
+                <div className="absolute right-0 mt-2 w-48 z-50 origin-top-right invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-300">
+                  <div className="rounded-lg shadow-lg py-1 backdrop-blur-md bg-white/90 dark:bg-gray-800/90 border border-gray-300/20 dark:border-gray-700/50">
                     <Link to="/profile" className="block px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-primary/10 dark:hover:bg-primary-dark/10">
                       {texts.profile}
                     </Link>
@@ -225,20 +239,16 @@ const Navbar3D = () => {
               </div>
             ) : (
               <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <Link to="/auth/login">
+                <Link to="/login">
                   <Button3D 
                     variant="glass" 
-                    className={`border border-white/20 ${
-                      scrolled
-                        ? 'text-gray-800 dark:text-white'
-                        : 'text-gray-800 dark:text-white'
-                    }`}
+                    className="border border-gray-300/50 dark:border-white/20"
                   >
                     {texts.login}
                   </Button3D>
                 </Link>
                 
-                <Link to="/auth/register">
+                <Link to="/register">
                   <Button3D variant="primary">
                     {texts.signup}
                   </Button3D>
@@ -251,11 +261,7 @@ const Navbar3D = () => {
           <div className="md:hidden">
             <button 
               onClick={() => setIsOpen(!isOpen)}
-              className={`p-2 rounded-lg ${
-                scrolled
-                  ? 'text-gray-800 dark:text-white'
-                  : 'text-gray-800 dark:text-white'
-              }`}
+              className={`p-2 rounded-lg ${getTextColor()}`}
               aria-label="Menu"
             >
               <svg 
@@ -286,7 +292,7 @@ const Navbar3D = () => {
             onClick={() => setIsOpen(false)}
           >
             <motion.div
-              className={`absolute top-20 ${isArabic ? 'right-0' : 'left-0'} bottom-0 w-4/5 max-w-xs bg-white dark:bg-gray-800 shadow-xl p-6 overflow-y-auto`}
+              className={`absolute top-20 ${isArabic ? 'right-0' : 'left-0'} h-[calc(100vh-5rem)] w-4/5 max-w-xs bg-white dark:bg-gray-800 shadow-xl p-6 overflow-y-auto`}
               initial="closed"
               animate="open"
               exit="closed"
@@ -315,14 +321,14 @@ const Navbar3D = () => {
                 <div className="flex flex-col space-y-4 border-t border-b border-gray-200 dark:border-gray-700 py-4">
                   <div className="flex items-center justify-between">
                     <span className="text-gray-700 dark:text-gray-200">
-                      {darkMode ? 'الوضع المظلم' : 'الوضع المضيء'}
+                      {darkMode ? texts.darkMode : texts.lightMode}
                     </span>
                     <ThemeSwitcher3D />
                   </div>
                   
                   <div className="flex items-center justify-between">
                     <span className="text-gray-700 dark:text-gray-200">
-                      {isArabic ? 'اللغة العربية' : 'English'}
+                      {isArabic ? texts.arabic : texts.english}
                     </span>
                     <LanguageSwitcher3D />
                   </div>
@@ -357,19 +363,19 @@ const Navbar3D = () => {
                     </>
                   ) : (
                     <>
-                      <Link to="/auth/login">
+                      <Link to="/login" className="w-full">
                         <Button3D 
                           variant="outline" 
-                          className="w-full" 
+                          fullWidth
                         >
                           {texts.login}
                         </Button3D>
                       </Link>
                       
-                      <Link to="/auth/register">
+                      <Link to="/register" className="w-full">
                         <Button3D 
                           variant="primary" 
-                          className="w-full" 
+                          fullWidth
                         >
                           {texts.signup}
                         </Button3D>
