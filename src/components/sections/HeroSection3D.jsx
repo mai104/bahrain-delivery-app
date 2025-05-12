@@ -1,3 +1,18 @@
+/**
+ * HeroSection3D
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: A highly advanced 3D hero section with water animations, particle effects,
+ *          and immersive visual elements for the homepage
+ * Future Use: Will be used as an alternative to the current HeroSection in the homepage
+ *             when more advanced 3D features are implemented
+ * 
+ * Note: This component was created to provide a more immersive 3D experience with water
+ * animations and particle effects. It includes GSAP animations and video backgrounds.
+ * Currently, a simpler version is being used in HomePage3D.
+ */
+
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';

@@ -1,3 +1,15 @@
+/**
+ * ProductHeader
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: Displays the product title and rating information
+ * Future Use: Will be used in the refactored ProductDetailsPage for better modularity
+ * 
+ * Note: This component is part of the modular product details design. It includes
+ * the product name, star rating, and review count.
+ */
+
 import React from 'react';
 import RatingStars from '../../ui/RatingStars';
 

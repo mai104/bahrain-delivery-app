@@ -1,3 +1,17 @@
+/**
+ * ParticleEffect
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: Creates animated particle effects for background visual interest
+ * Future Use: Will be used in various sections of the app to add visual interest
+ *            and enhance the user experience in 3D mode
+ * 
+ * Note: This component creates customizable animated particles with different behaviors
+ * (up, down, side, circular, random). It supports different colors, sizes, and animation
+ * durations for creating varied visual effects across the application.
+ */
+
 import React from 'react';
 import { motion } from 'framer-motion';
 

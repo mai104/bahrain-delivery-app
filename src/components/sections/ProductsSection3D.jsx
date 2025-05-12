@@ -1,3 +1,17 @@
+/**
+ * ProductsSection3D
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: Displays featured products in an animated 3D grid with visual effects
+ * Future Use: Will replace the current products section in the homepage with a more
+ *            visually appealing 3D version
+ * 
+ * Note: This component was developed as part of the 3D UI enhancement initiative.
+ * It includes advanced animations, decorative elements, and a responsive grid layout.
+ * Currently, a simpler version is used in the homepage.
+ */
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';

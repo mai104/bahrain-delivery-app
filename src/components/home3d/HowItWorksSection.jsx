@@ -1,3 +1,15 @@
+/**
+ * HowItWorksSection
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: Displays a step-by-step guide on how the delivery app works with animated cards
+ * Future Use: Will be integrated into the HomePage3D component for a complete user journey overview
+ * 
+ * Note: This component was created as part of the 3D UI enhancement but is not currently
+ * integrated into the application flow. It includes animations and responsive design.
+ */
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';

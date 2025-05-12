@@ -1,3 +1,21 @@
+/**
+ * ProductCard3D
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: A 3D interactive product card with hover effects, particle animations,
+ *          and immersive visual feedback
+ * Future Use: Will be used in the products section and product listing pages when the
+ *             3D UI mode is fully implemented
+ * 
+ * Note: This component provides an enhanced user experience through interactive 3D effects.
+ * It uses Framer Motion to create 3D transformations based on mouse movements and includes
+ * floating particle animations on hover.
+ * 
+ * Note 2: There is a duplicate of this component in src/components/home3d/ProductCard3D.jsx
+ * that should be consolidated in the restructuring.
+ */
+
 import React, { useState, useRef } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';

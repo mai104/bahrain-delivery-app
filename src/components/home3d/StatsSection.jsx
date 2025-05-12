@@ -1,3 +1,15 @@
+/**
+ * StatsSection
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: Displays key statistics about the delivery service with animated counters
+ * Future Use: Will be integrated into the HomePage3D to showcase business metrics
+ * 
+ * Note: This component was designed to highlight key performance metrics of the
+ * delivery service. It includes animated statistics and a wave separator effect.
+ */
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../contexts/LanguageContext';

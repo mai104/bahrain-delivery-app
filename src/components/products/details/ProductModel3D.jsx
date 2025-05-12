@@ -1,3 +1,18 @@
+/**
+ * ProductModel3D
+ * 
+ * CURRENTLY UNUSED
+ * 
+ * Purpose: Renders interactive 3D models of products (water bottles and gas cylinders)
+ * Future Use: Will be integrated into the product details page to provide an immersive
+ *             3D preview of products that users can rotate and inspect
+ * 
+ * Note: This component uses React Three Fiber and Drei to render 3D models with
+ * presentation controls. It currently supports two product types: 'water' and 'gas'.
+ * The component will enhance the shopping experience by allowing users to interact
+ * with product models before purchasing.
+ */
+
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { PresentationControls, Environment, OrbitControls } from '@react-three/drei';

@@ -1,268 +1,267 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLanguage } from '../../contexts/LanguageContext';
-import Button from '../../components/ui/Button';
-import Card from '../../components/ui/Card';
+import Card, { CardTitle } from '../../components/common/cards/Card';
+import Button from '../../components/common/buttons/Button';
+import useProduct from '../../hooks/useProduct';
+import useCart from '../../hooks/useCart';
+import ProductPrice from '../../components/features/product/ProductPrice';
+import ProductSizeSelector from '../../components/features/product/ProductSizeSelector';
+import ProductQuantitySelector from '../../components/features/product/ProductQuantitySelector';
+import ProductFeatures from '../../components/features/product/ProductFeatures';
+import ProductGallery from '../../components/features/product/ProductGallery';
+import AddToCartButton from '../../components/features/product/AddToCartButton';
 
+/**
+ * ProductDetailsPage
+ * 
+ * Displays detailed information about a product and allows the user to add it to cart.
+ */
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const { isArabic } = useLanguage();
+  const { 
+    product, 
+    loading, 
+    error, 
+    relatedProducts,
+    relatedLoading,
+    selectedImage,
+    selectedSize,
+    quantity,
+    incrementQuantity,
+    decrementQuantity,
+    changeImage,
+    changeSize
+  } = useProduct(id);
+  const { addItem } = useCart();
   
-  // حالة المنتج - ستأتي من API لاحقًا
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [quantity, setQuantity] = useState(1);
-  const [relatedProducts, setRelatedProducts] = useState([]);
-
-  // النصوص حسب اللغة
+  // Texts based on language
   const texts = {
     loading: isArabic ? 'جاري التحميل...' : 'Loading...',
     notFound: isArabic ? 'المنتج غير موجود' : 'Product Not Found',
     notFoundDesc: isArabic ? 'عذراً، لم نتمكن من العثور على المنتج الذي تبحث عنه.' : 'Sorry, we could not find the product you are looking for.',
     backToProducts: isArabic ? 'العودة إلى المنتجات' : 'Back to Products',
-    addToCart: isArabic ? 'أضف إلى السلة' : 'Add to Cart',
-    quantity: isArabic ? 'الكمية:' : 'Quantity:',
-    size: isArabic ? 'الحجم:' : 'Size:',
     description: isArabic ? 'الوصف' : 'Description',
-    features: isArabic ? 'المميزات' : 'Features',
     relatedProducts: isArabic ? 'منتجات ذات صلة' : 'Related Products',
-    sar: isArabic ? 'د.ب' : 'BHD',
+    error: isArabic ? 'حدث خطأ أثناء تحميل المنتج' : 'Error loading product',
+    tryAgain: isArabic ? 'حاول مرة أخرى' : 'Try Again',
   };
 
-  // لمحاكاة API، سنفترض أن المنتج موجود
-  const mockProduct = {
-    id: 1,
-    name: isArabic ? 'مياه معدنية - عبوة كبيرة' : 'Mineral Water - Large Bottle',
-    description: isArabic ? 'مياه معدنية نقية، عبوة 18 لتر مناسبة للاستخدام المنزلي' : 'Pure mineral water, 18-liter bottle suitable for home use',
-    price: 1.5,
-    discount: 16,
-    images: ['/images/water-large-1.jpg', '/images/water-large-2.jpg'],
-    sizes: [
-      { id: 1, name: isArabic ? '18 لتر' : '18 Liters', price: 1.5 },
-      { id: 2, name: isArabic ? '12 لتر' : '12 Liters', price: 1.2 }
-    ],
-    features: [
-      { name: isArabic ? 'مصفاة 100%' : '100% Filtered' },
-      { name: isArabic ? 'معادن طبيعية' : 'Natural Minerals' }
-    ]
+  // Get localized product data
+  const getLocalizedData = (product) => {
+    if (!product) return {};
+    
+    return {
+      ...product,
+      name: isArabic ? product.name : (product.nameEn || product.name),
+      description: isArabic ? product.description : (product.descriptionEn || product.description),
+    };
   };
 
-  // زيادة الكمية
-  const increaseQuantity = () => {
-    setQuantity(prev => prev + 1);
+  // Get selected size object and price
+  const getSelectedSizeAndPrice = () => {
+    if (!product || !selectedSize) return { size: null, price: product?.price || 0 };
+    
+    const sizeObj = product.sizes.find(s => s.id === selectedSize);
+    return {
+      size: sizeObj,
+      price: sizeObj?.price || product.price
+    };
   };
 
-  // إنقاص الكمية
-  const decreaseQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(prev => prev - 1);
-    }
+  // Add to cart handler
+  const handleAddToCart = async () => {
+    if (!product || !selectedSize) return;
+    
+    const { size, price } = getSelectedSizeAndPrice();
+    
+    const item = {
+      productId: product.id,
+      name: getLocalizedData(product).name,
+      price,
+      quantity,
+      sizeId: size.id,
+      sizeName: isArabic ? size.name : (size.nameEn || size.name),
+      image: product.images[0] || product.image,
+    };
+    
+    await addItem(item);
   };
 
-  // تغيير الصورة المحددة
-  const changeImage = (index) => {
-    setSelectedImage(index);
-  };
-
-  // تغيير الحجم المحدد
-  const changeSize = (sizeId) => {
-    setSelectedSize(sizeId);
-  };
-
-  // إضافة إلى السلة
-  const addToCart = () => {
-    // سيتم تنفيذ هذه الوظيفة لاحقًا
-    console.log('إضافة إلى السلة:', {
-      productId: mockProduct.id,
-      sizeId: selectedSize,
-      quantity
-    });
-  };
-
-  // في حالة التحميل
+  // Loading state
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
-        <p className="text-xl text-gray-600 dark:text-gray-400">{texts.loading}</p>
+        <div className="animate-pulse flex flex-col items-center">
+          <div className="h-10 w-40 bg-gray-300 dark:bg-gray-700 rounded mb-4"></div>
+          <div className="h-4 w-1/4 bg-gray-300 dark:bg-gray-700 rounded mb-8"></div>
+          <div className="h-64 w-64 bg-gray-300 dark:bg-gray-700 rounded-lg"></div>
+        </div>
+        <p className="text-xl text-gray-600 dark:text-gray-400 mt-6">{texts.loading}</p>
       </div>
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="bg-red-100 dark:bg-red-900/20 p-8 rounded-lg">
+          <svg className="w-16 h-16 text-red-500 dark:text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{texts.error}</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">{error}</p>
+          <Link to="/products">
+            <Button variant="outline">
+              {texts.backToProducts}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Not found state
+  if (!product) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="bg-yellow-100 dark:bg-yellow-900/20 p-8 rounded-lg">
+          <svg className="w-16 h-16 text-yellow-500 dark:text-yellow-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{texts.notFound}</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">{texts.notFoundDesc}</p>
+          <Link to="/products">
+            <Button variant="outline">
+              {texts.backToProducts}
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // When product is loaded
+  const localizedProduct = getLocalizedData(product);
+  const { size, price } = getSelectedSizeAndPrice();
+
   return (
     <div className="bg-gray-50 dark:bg-gray-900 py-12">
       <div className="container mx-auto px-4">
-        {/* تفاصيل المنتج */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden mb-12">
+        {/* Product Details */}
+        <Card className="mb-12">
           <div className="md:flex">
-            {/* قسم الصور */}
+            {/* Product Images */}
             <div className="md:w-1/2 p-6">
-              {/* الصورة الرئيسية */}
-              <div className="mb-4 rounded-lg overflow-hidden">
-                <img 
-                  src={mockProduct.images[selectedImage]} 
-                  alt={mockProduct.name} 
-                  className="w-full h-auto object-cover"
-                />
-              </div>
-              
-              {/* الصور المصغرة */}
-              <div className="flex space-x-2 rtl:space-x-reverse">
-                {mockProduct.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => changeImage(index)}
-                    className={`
-                      w-20 h-20 rounded-md overflow-hidden border-2
-                      ${selectedImage === index 
-                        ? 'border-primary dark:border-primary-dark' 
-                        : 'border-transparent'}
-                    `}
-                  >
-                    <img 
-                      src={image} 
-                      alt={`${mockProduct.name} - ${index + 1}`} 
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
+              <ProductGallery
+                images={product.images}
+                alt={localizedProduct.name}
+                selectedImage={selectedImage}
+                onImageChange={changeImage}
+              />
             </div>
             
-            {/* معلومات المنتج */}
+            {/* Product Info */}
             <div className="md:w-1/2 p-6">
               <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
-                {mockProduct.name}
+                {localizedProduct.name}
               </h1>
               
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                {mockProduct.description}
+                {localizedProduct.description}
               </p>
               
-              {/* السعر */}
-              <div className="flex items-center mb-6">
-                <span className="text-2xl font-bold text-primary dark:text-primary-dark">
-                  {mockProduct.price} {texts.sar}
-                </span>
-                
-                {mockProduct.discount > 0 && (
-                  <span className="ms-3 px-2 py-1 bg-accent text-white text-sm rounded">
-                    {mockProduct.discount}% {isArabic ? 'خصم' : 'OFF'}
-                  </span>
-                )}
-              </div>
+              {/* Price */}
+              <ProductPrice
+                price={price}
+                oldPrice={product.oldPrice}
+                discount={product.discount}
+                size="large"
+              />
               
-              {/* اختيار الحجم */}
-              {mockProduct.sizes && mockProduct.sizes.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {texts.size}
-                  </h3>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    {mockProduct.sizes.map(size => (
-                      <button
-                        key={size.id}
-                        onClick={() => changeSize(size.id)}
-                        className={`
-                          px-4 py-2 border rounded-md transition-colors
-                          ${selectedSize === size.id 
-                            ? 'border-primary bg-primary/10 text-primary dark:border-primary-dark dark:bg-primary-dark/10 dark:text-primary-dark' 
-                            : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'}
-                        `}
-                      >
-                        {size.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Size Selector */}
+              <ProductSizeSelector
+                sizes={product.sizes}
+                selectedSizeId={selectedSize}
+                onChange={changeSize}
+              />
               
-              {/* التحكم في الكمية */}
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {texts.quantity}
-                </h3>
-                
-                <div className="flex items-center">
-                  <button
-                    onClick={decreaseQuantity}
-                    className="w-10 h-10 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-s-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                  >
-                    <span className="text-xl">-</span>
-                  </button>
-                  
-                  <div className="w-14 h-10 flex items-center justify-center border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                    {quantity}
-                  </div>
-                  
-                  <button
-                    onClick={increaseQuantity}
-                    className="w-10 h-10 flex items-center justify-center border border-gray-300 dark:border-gray-600 rounded-e-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                  >
-                    <span className="text-xl">+</span>
-                  </button>
-                </div>
-              </div>
+              {/* Quantity Selector */}
+              <ProductQuantitySelector
+                quantity={quantity}
+                onIncrement={incrementQuantity}
+                onDecrement={decrementQuantity}
+              />
               
-              {/* زر الإضافة إلى السلة */}
-              <Button
-                variant="primary"
-                size="lg"
-                fullWidth
-                onClick={addToCart}
+              {/* Add to Cart Button */}
+              <AddToCartButton
+                onClick={handleAddToCart}
+                disabled={!selectedSize}
                 className="mb-4"
-              >
-                {texts.addToCart}
-              </Button>
+              />
               
-              {/* المميزات */}
-              {mockProduct.features && mockProduct.features.length > 0 && (
-                <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">
-                    {texts.features}
-                  </h3>
-                  
-                  <ul className="space-y-2">
-                    {mockProduct.features.map((feature, index) => (
-                      <li key={index} className="flex items-center text-gray-600 dark:text-gray-400">
-                        <svg className="h-5 w-5 text-primary dark:text-primary-dark mr-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                        {feature.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              {/* Features */}
+              <ProductFeatures features={product.features} />
             </div>
           </div>
           
-          {/* الوصف المفصل */}
+          {/* Detailed Description */}
           <div className="p-6 border-t border-gray-200 dark:border-gray-700">
             <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">
               {texts.description}
             </h2>
             
             <p className="text-gray-600 dark:text-gray-400">
-              {mockProduct.description}
+              {localizedProduct.description}
             </p>
           </div>
-        </div>
+        </Card>
         
-        {/* المنتجات ذات الصلة - ستأتي من API */}
+        {/* Related Products */}
         <div className="mt-12">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
             {texts.relatedProducts}
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* هنا ستعرض المنتجات ذات الصلة من API */}
-            <Card className="animate-pulse h-72" />
-            <Card className="animate-pulse h-72" />
-            <Card className="animate-pulse h-72" />
-            <Card className="animate-pulse h-72" />
+            {relatedLoading ? (
+              // Related products loading skeleton
+              [...Array(4)].map((_, i) => (
+                <Card key={i} className="animate-pulse h-72" />
+              ))
+            ) : relatedProducts.length > 0 ? (
+              // Related products loaded
+              relatedProducts.map(relatedProduct => {
+                const localizedRelated = getLocalizedData(relatedProduct);
+                return (
+                  <Link key={relatedProduct.id} to={`/products/${relatedProduct.id}`}>
+                    <Card className="h-full flex flex-col">
+                      <div className="h-48 rounded-lg overflow-hidden mb-3">
+                        <img 
+                          src={relatedProduct.image} 
+                          alt={localizedRelated.name} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <CardTitle>{localizedRelated.name}</CardTitle>
+                      <ProductPrice 
+                        price={relatedProduct.price}
+                        oldPrice={relatedProduct.oldPrice}
+                        discount={relatedProduct.discount}
+                        size="small"
+                      />
+                    </Card>
+                  </Link>
+                );
+              })
+            ) : (
+              // No related products
+              <div className="col-span-4 text-center py-8 text-gray-500 dark:text-gray-400">
+                {isArabic ? 'لا توجد منتجات ذات صلة' : 'No related products found'}
+              </div>
+            )}
           </div>
         </div>
       </div>
